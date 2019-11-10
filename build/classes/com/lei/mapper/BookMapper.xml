@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lei.dao.BookMapper">
+	<resultMap id="BaseResultMap" type="com.lei.po.Book">
+		<id column="bId" jdbcType="INTEGER" property="bid" />
+		<result column="bName" jdbcType="VARCHAR" property="bname" />
+		<result column="bType" jdbcType="INTEGER" property="btype" />
+		<result column="bAmount" jdbcType="INTEGER" property="bamount" />
+	</resultMap>
+	<resultMap id="BaseResultMapWithType" type="com.lei.po.Book">
+		<id column="bId" jdbcType="INTEGER" property="bid" />
+		<result column="bName" jdbcType="VARCHAR" property="bname" />
+		<result column="bType" jdbcType="INTEGER" property="btype" />
+		<result column="bAmount" jdbcType="INTEGER" property="bamount" />
+		<association property="book_type" javaType="Book_type">
+			<id column="tId" property="tid" />
+			<id column="tName" property="tname" />
+		</association>
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		bId, bName, bType, bAmount
+	</sql>
+	<select id="selectByExample" parameterType="com.lei.po.BookExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from book
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from book
+		where bId = #{bid,jdbcType=INTEGER}
+	</select>
+	<select id="listbook" resultMap="BaseResultMapWithType">
+		SELECT * FROM book LEFT JOIN
+		book_type ON book.`bType`=book_type.`tId`
+		<where>
+			<if test="bname!=null and bname!=''">
+				and bName LIKE CONCAT('%',#{bname},'%')
+			</if>
+			<if test="btype!=null and btype!=0">
+				and bType=#{btype}
+			</if>
+		</where>
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from book
+		where bId = #{bid,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.lei.po.BookExample">
+		delete from book
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.lei.po.Book">
+		insert into book (bId, bName,
+		bType,
+		bAmount)
+		values (#{bid,jdbcType=INTEGER},
+		#{bname,jdbcType=VARCHAR},
+		#{btype,jdbcType=INTEGER},
+		#{bamount,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="com.lei.po.Book">
+		insert into book
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bid != null">
+				bId,
+			</if>
+			<if test="bname != null">
+				bName,
+			</if>
+			<if test="btype != null">
+				bType,
+			</if>
+			<if test="bamount != null">
+				bAmount,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bid != null">
+				#{bid,jdbcType=INTEGER},
+			</if>
+			<if test="bname != null">
+				#{bname,jdbcType=VARCHAR},
+			</if>
+			<if test="btype != null">
+				#{btype,jdbcType=INTEGER},
+			</if>
+			<if test="bamount != null">
+				#{bamount,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.lei.po.BookExample"
+		resultType="java.lang.Long">
+		select count(*) from book
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update book
+		<set>
+			<if test="record.bid != null">
+				bId = #{record.bid,jdbcType=INTEGER},
+			</if>
+			<if test="record.bname != null">
+				bName = #{record.bname,jdbcType=VARCHAR},
+			</if>
+			<if test="record.btype != null">
+				bType = #{record.btype,jdbcType=INTEGER},
+			</if>
+			<if test="record.bamount != null">
+				bAmount = #{record.bamount,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update book
+		set bId = #{record.bid,jdbcType=INTEGER},
+		bName =
+		#{record.bname,jdbcType=VARCHAR},
+		bType =
+		#{record.btype,jdbcType=INTEGER},
+		bAmount =
+		#{record.bamount,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.lei.po.Book">
+		update book
+		<set>
+			<if test="bname != null">
+				bName = #{bname,jdbcType=VARCHAR},
+			</if>
+			<if test="btype != null">
+				bType = #{btype,jdbcType=INTEGER},
+			</if>
+			<if test="bamount != null">
+				bAmount = #{bamount,jdbcType=INTEGER},
+			</if>
+		</set>
+		where bId = #{bid,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.lei.po.Book">
+		update book
+		set
+		bName = #{bname,jdbcType=VARCHAR},
+		bType = #{btype,jdbcType=INTEGER},
+		bAmount = #{bamount,jdbcType=INTEGER}
+		where bId =
+		#{bid,jdbcType=INTEGER}
+	</update>
+</mapper>
